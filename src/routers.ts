@@ -38,12 +38,13 @@ const app = new Hono();
 app.get('/', async c => {
 	const url = new URL(c.req.url);
 	const root = `${url.origin}`;
-	return c.body(`Hello World! try \`pip install ${root}/tar/torch/1.0\` `);
+	return c.body(`Hello World! try \`pip install ${root}/targz/torch/1.0\` or \`pip install torch==2.0.0 -i ${root}\` `);
 });
 
 // package page
 app.get('/:name/', async c => {
 	const { name } = c.req.param();
+	// build from source (.tar.gz) requires the following packages
 	if (['setuptools', 'pip', 'wheel'].includes(name)) {
 		return c.redirect('https://pypi.org/simple/' + name);
 	}
@@ -66,16 +67,15 @@ app.get('/:name/', async c => {
 			.map(key => $(elem).removeAttr(key));
 
 		const parts = fileName.split('-');
-		const packageName = parts[0];
+		const packageName = parts[0]; // TODO: check if it's the same as the name
 		const version = parts[1];
 
+		// convert all links to our server in tar.gz format
 		const newFileName = `${packageName}-${version}.tar.gz`;
 		const newUrl = `/targz/${packageName}/${version}/` + newFileName;
 		$(elem).attr('href', newUrl);
 		$(elem).text(newFileName);
 	});
-
-	// console.log($.html())
 
 	return c.body($.html(), {
 		headers: {
@@ -85,11 +85,8 @@ app.get('/:name/', async c => {
 });
 
 
-app.get('/targz/:name/:version', async c => {
-	const { name, version } = c.req.param();
-	const content = await makePackage(name, version);
-	return c.redirect(`/targz/${name}/${version}/${name}-${version}.tar.gz`);
-});
+// TODO: support wheel.
+//  But it's not easy to generate without a python environment
 
 app.get('/targz/:name/:version', async c => {
 	const { name, version } = c.req.param();
