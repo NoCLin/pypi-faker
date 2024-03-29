@@ -1,0 +1,5 @@
+fastapi
+uvicorn
+wheel
+httpx
+beautifulsoup4
