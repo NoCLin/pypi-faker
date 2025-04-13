@@ -2,3 +2,9 @@
 .wrangler
 node_modules
 .idea
+.vercel
+**/__pycache__
+**/.DS_Store
+**/*.egg-info
+example_package/build
+example_package/dist
